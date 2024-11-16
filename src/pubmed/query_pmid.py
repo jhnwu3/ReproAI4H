@@ -27,7 +27,7 @@ def save_pmids_to_csv(pmids, filename):
 
 # esearch -db pubmed -query '("artificial intelligence"[MeSH Terms] OR "artificial intelligence"[All Fields] OR "AI"[All Fields] OR "machine learning"[MeSH Terms] OR "machine learning"[All Fields] OR "ML"[All Fields]) AND journal article[Publication Type] AND 2018:2023[pdat] AND pubmed pmc open access[filter]' | efetch -format xml
 
-def main():
+def query_pmids():
 
     query_type = "pubmed"
     # query_type = "amia"
@@ -62,7 +62,7 @@ def main():
     print(f"PMIDs have been saved to {filename}")
 
 if __name__ == "__main__":
-    main()
+    query_pmids()
 
 
 #Filters applied: Free full text, Classical Article, Clinical Study, Clinical Trial, Clinical Trial, Phase I, Clinical Trial, Phase II, Clinical Trial, Phase III, Clinical Trial, Phase IV, Dataset, Government Publication, Preprint, Randomized Controlled Trial, Randomized Controlled Trial, Veterinary, Research Support, American Recovery and Reinvestment Act, Research Support, N.I.H., Extramural, Research Support, N.I.H., Intramural, Research Support, Non-U.S. Gov't, Research Support, U.S. Gov't, Non-P.H.S., Research Support, U.S. Gov't, P.H.S., Research Support, U.S. Gov't, Technical Report, Validation Study. Open PMC Access

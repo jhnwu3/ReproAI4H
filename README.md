@@ -46,6 +46,11 @@ We note that it is crucial that you have enough GPU memory to run open source 70
 
 While one can potentially attempt to use smaller 8B or 7B models, their performance is typically poor.
 
+### API's
+
+We note that getting access to each service's API's may not be trivial. For getting access to SemanticScholar API, you will have to apply for it [here](https://www.semanticscholar.org/product/api). 
+
+
 ## Scraping Conference Papers
 
 
