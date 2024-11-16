@@ -48,7 +48,7 @@ While one can potentially attempt to use smaller 8B or 7B models, their performa
 
 ### API's
 
-We note that getting access to each service's API's may not be trivial. For getting access to SemanticScholar API, you will have to apply for it [here](https://www.semanticscholar.org/product/api). 
+We note that getting access to each service's API's may not be trivial. For getting access to SemanticScholar API, you will have to apply for it [here](https://www.semanticscholar.org/product/api). For getting access to Medline's API, you will need to get a PubMed API key [here](https://support.nlm.nih.gov/kbArticle/?pn=KA-05317). Finally, SerpAPI can be accessed simply by accessing their website [here](https://serpapi.com/).
 
 
 ## Scraping Conference Papers
