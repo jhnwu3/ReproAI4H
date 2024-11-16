@@ -24,7 +24,9 @@ pip install -r requirements.txt
 *Note: Make sure you have Anaconda or Miniconda installed on your system before running these commands.*
 
 ### System Requirements
-We note that it is crucial that you have 
+We note that it is crucial that you have enough GPU memory to run open source 70B LLMs for topic classification and conference paper title and author extraction. We ran all of our experiments using a single A6000 GPU with 48GB of VRAM. 
+
+While one can potentially attempt to use smaller 8B or 7B models, their performance is typically poor.
 
 ## Scraping Conference Papers
 
