@@ -1,5 +1,23 @@
-# Bridging the Reproducibility Divide: Open Source Software’s Role in Standardizing Healthcare AI4H
-This repo is for the reproducibility study done in the aforementioned submitted publication above. We walkthrough those who wish to reproduce our step-by-step scraping procedure. 
+# Bridging the Reproducibility Divide: Open Source Software's Role in Standardizing Healthcare AI4H
+
+## Overview
+This repository contains the reproducibility study conducted for our submitted publication "Bridging the Reproducibility Divide: Open Source Software's Role in Standardizing Healthcare AI4H". We provide a step-by-step guide for those who wish to reproduce our data collection and analysis procedures.
+
+## Data
+The complete dataset used in our analysis can be found in:
+- `data/processed_final.csv`
+
+## Analysis and Visualization
+Our figures and numerical analyses are implemented in the following Jupyter notebooks:
+
+1. `plot_general.ipynb`
+   - Contains all code for generating Figure 1
+
+2. `plot_code.ipynb`
+   - Contains all code for generating Figure 2
+
+3. `plot_data.ipynb`
+   - Contains all code for generating Figure 3
 
 ## Requirements
 

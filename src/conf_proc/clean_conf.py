@@ -107,22 +107,35 @@ class ConferencePaperCleaner:
         return new_df
 
     def clean_conference_papers(self, conference: str):
+        """Clean conference papers with simple debug mode"""
         conf = self.path_manager.get_conference_config(conference)
         
-        if self.path_manager.debug:
-            # In debug mode, only process the debug year
-            input_file = self.path_manager.get_output_filename(
-                conference, 
-                year=conf.debug_year, 
-                stage='processed'
-            )
-        else:
-            input_file = self.path_manager.get_output_filename(conference, stage='processed')
-            
+        # Read input file
+        input_file = self.path_manager.get_output_filename(
+            conference,
+            year=conf.debug_year if self.path_manager.debug else None,
+            stage='processed'
+        )
+        print(f"Reading input file: {input_file}")
+        
         df = pd.read_csv(input_file)
         
-        # In debug mode, filter to only process debug papers
+        # In debug mode, just take first 5 papers
         if self.path_manager.debug:
-            df = df[df['filename'].apply(
-                lambda x: self.path_manager.should_process_file(x, conference)
-            )]
+            df = df.head(5)
+            print(f"Debug mode: Processing first {len(df)} papers")
+        
+        # Process papers
+        print(f"Cleaning {len(df)} papers...")
+        cleaned_df = self.process_dataframe_titles(df)
+        cleaned_df = self.process_dataframe_emails(cleaned_df, "authors")
+        
+        # Save results
+        output_file = self.path_manager.get_output_filename(
+            conference,
+            year=conf.debug_year if self.path_manager.debug else None,
+            stage='cleaned'
+        )
+        cleaned_df.to_csv(output_file, index=False)
+        print(f"Wrote cleaned data to {output_file}")
+

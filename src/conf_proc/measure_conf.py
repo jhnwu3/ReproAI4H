@@ -171,7 +171,6 @@ class PDFContentProcessor:
         return sum(1 for term in terms if term.lower() in text)
 
 
-    
     def process_pdf(self, content):
         """Process PDF content and extract relevant information"""
         lines = content.split('\n')
@@ -211,21 +210,38 @@ class PDFContentProcessor:
         return results
 
     def process_conference(self, conference: str):
+        """Process conference papers with simple debug mode"""
         conf = self.path_manager.get_conference_config(conference)
-        
-        # Use debug-aware method to get years
         years = conf.get_years(self.path_manager.debug)
         
+        all_results = []
         for year in years:
             paths = self.path_manager.get_paths(conference, year)
+            print(f"\nProcessing {conference} papers from {year}")
             
-            # Process only debug papers if in debug mode
-            results = []
-            for pdf_file in paths['year_pdfs'].glob('*.pdf'):
-                if self.path_manager.should_process_file(pdf_file.name, conference):
-                    result = self.process_pdf(pdf_file)
-                    if result:
-                        results.append(result)
+            # Get list of PDFs and limit if in debug mode
+            pdf_files = list(paths['year_pdfs'].glob('*.pdf'))
+            if self.path_manager.debug:
+                pdf_files = pdf_files[:5]
+                print(f"Debug mode: Processing first {len(pdf_files)} papers")
+                
+            for pdf_file in pdf_files:
+                content = self.extract_pdf_content(pdf_file)
+                if content:
+                    result = self.process_pdf(content)
+                    result['year'] = year
+                    result['filename'] = pdf_file.name
+                    all_results.append(result)
+                    print(f"Processed {pdf_file.name}")
+        
+        # Save results
+        output_file = self.path_manager.get_output_filename(
+            conference,
+            year=conf.debug_year if self.path_manager.debug else None,
+            stage='processed'
+        )
+        self.write_to_csv(all_results, output_file)
+        print(f"Wrote {len(all_results)} results to {output_file}")
                         
     def write_to_csv(self, results, filename):
         """Write extracted information to CSV file"""

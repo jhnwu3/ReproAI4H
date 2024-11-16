@@ -89,8 +89,6 @@ class ConferenceDownloader:
 
     def process_conference(self, conference: str):
         conf = self.path_manager.get_conference_config(conference)
-        
-        # Use debug-aware methods to get years and URLs
         years = conf.get_years(self.path_manager.debug)
         urls = conf.get_urls(self.path_manager.debug)
         
@@ -98,24 +96,25 @@ class ConferenceDownloader:
             paths = self.path_manager.get_paths(conference, year)
             pdf_links = self.scrape_webpage(base_url)
             
-            # In debug mode, only process the selected papers
+            # In debug mode, just take the first 5 papers
             if self.path_manager.debug:
-                pdf_links = [
-                    (url, title) for url, title in pdf_links 
-                    if any(debug_paper in url for debug_paper in conf.debug_papers)
-                ]
+                pdf_links = pdf_links[:5]
+                print(f"\nDebug mode: Processing first {len(pdf_links)} papers from {year}")
+                for url, title in pdf_links:
+                    print(f"- {title}")
             
             for pdf_url, pdf_title in pdf_links:
-                print(f"Processing: {pdf_title}")
-                print(f"URL: {pdf_url}")
                 self.download_pdf(
                     pdf_url, 
                     paths['year_pdfs'],
                     paths['raw_pdfs']
                 )
+                print(f"Finished downloading {pdf_title}")
+                
 
         print(f"Finished processing {conference.upper()} conference papers.")
         print("==="*20)
+
 
     def process_all_conferences(self):
         """Process all configured conferences"""
