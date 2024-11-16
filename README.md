@@ -76,6 +76,8 @@ While one can potentially attempt to use smaller 8B or 7B models, their performa
 
 
 ## Manual Evaluation Results
-
-
-## Plotting Paper Figures
+We also include manual evaluation results in 
+- `data/validation.csv`
+  
+which can be used to compute the final validation results in the Appendix table using
+- `validation.ipynb`
