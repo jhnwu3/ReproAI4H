@@ -3,7 +3,7 @@ import requests
 import time
 import pandas as pd
 
-S2_API_KEY = "6LNk9us0q082en0aRoUmc9eURiWmtqwW5pFQtQ5H"
+S2_API_KEY = ""  # Add your Semantic Scholar API key here
 RESULT_LIMIT = 10
 BASE_URL = 'https://api.semanticscholar.org/graph/v1/paper/search'
 DELAY = 2.2
