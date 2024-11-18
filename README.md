@@ -1,7 +1,9 @@
 # Bridging the Reproducibility Divide: Open Source Software's Role in Standardizing Healthcare AI4H
 
 ## Overview
-This repository contains the reproducibility study conducted for our submitted publication "Bridging the Reproducibility Divide: Open Source Software's Role in Standardizing Healthcare AI4H". We provide a step-by-step guide for those who wish to reproduce our data collection and analysis procedures.
+This repository contains the reproducibility study conducted for our submitted publication "Bridging the Reproducibility Divide: Open Source Software's Role in Standardizing Healthcare AI4H". We provide a step-by-step guide for those who wish to reproduce our data collection and analysis procedures as outlined in the figure below.
+
+![Pipeline](figures/ScrapingPipeline.drawio(1).png)
 
 ## Data
 The complete dataset used in our analysis can be found in:
@@ -72,16 +74,26 @@ All code for code sharing and public dataset usage is in  `src/conf_proc/measure
 
 
 ### Retrieving Citation Data (Semantic Scholar and SerpAPI)
-We note that we primarily use semantic scholar and SerpAPI to retrieve conference paper statistics as PubMed doesn't actively store conference papers.
+We note that we primarily use semantic scholar and SerpAPI to retrieve conference paper statistics as PubMed doesn't actively store conference papers. The semantic scholar querying code is in `src/citation/semantic_scholar.py`.
+
+We note that SerpAPI was queried using a free account and is done through the jupyter notebook `serpapi_conference_papers.ipynb` with their provided API.
 
 
 ## Scraping PubMed
+One can retrace our steps for scraping PubMed papers by running
+
+```bash
+python3 pmc.py 
+```
+
+### PMID Query
+All code for querying PubMed's AI4H papers is in
 
 ### Medline Affiliation Extraction 
-
+We query all medline affiliations using the code defined in `src/pubmed/medline.py`.
 
 ### Code Sharing and Public Dataset Usage
-
+All processing and analysis code is defined in `src/pubmed/pmc_scrape.py`
 
 ## Papers with Code API Check
 
