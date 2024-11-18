@@ -59,13 +59,15 @@ def update_dataframe_with_dataset_count(df):
     return df
 
 # Load your DataFrame
-topic_df = pd.read_csv("processed_data/topic_df_with_affiliation_classification.csv")
-print(f"Original DataFrame length: {len(topic_df)}")
 
-# Update the DataFrame with dataset counts
-updated_df = update_dataframe_with_dataset_count(topic_df)
+def papers_with_code(path):
+    topic_df = pd.read_csv(path)
+    print(f"Original DataFrame length: {len(topic_df)}")
 
-# Save the updated DataFrame
-updated_df.to_csv("processed_data/topic_df_with_paperswithcode_dataset_count.csv", index=False)
-print(f"Updated DataFrame saved. New column added: paper_with_code_data_count")
-print(f"Final DataFrame length: {len(updated_df)}")
+    # Update the DataFrame with dataset counts
+    updated_df = update_dataframe_with_dataset_count(topic_df)
+
+    # Save the updated DataFrame
+    updated_df.to_csv("data/final_processed.csv", index=False)
+    print(f"Updated DataFrame saved. New column added: paper_with_code_data_count")
+    print(f"Final DataFrame length: {len(updated_df)}")

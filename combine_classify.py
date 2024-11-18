@@ -134,7 +134,6 @@ def main():
     classified_df = classifier.process_dataset(batch_size=100)
     
     # Topic Classification saved below
-
     if classified_df is not None:
         print("\nClassification Results:")
         print(classified_df[['title', 'topic']].head())
