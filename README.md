@@ -76,7 +76,7 @@ All code for code sharing and public dataset usage is in  `src/conf_proc/measure
 ### Retrieving Citation Data (Semantic Scholar and SerpAPI)
 We note that we primarily use semantic scholar and SerpAPI to retrieve conference paper statistics as PubMed doesn't actively store conference papers. The semantic scholar querying code is in `src/citation/semantic_scholar.py`.
 
-We note that SerpAPI was queried using a free account and is done through the jupyter notebook `serpapi_conference_papers.ipynb` with their provided API.
+We note that SerpAPI was queried using a free account and is then done through the jupyter notebook `serpapi_conference_papers.ipynb` with their provided API for all the papers missing from the initial semantic scholar check.
 
 
 ## Scraping PubMed
@@ -103,10 +103,10 @@ python3 combine_classify.py
 ```
 
 ### Papers with Code API Check
-We cross-check public dataset usage using papers with code using the code in `src/citation/papers_with_code.py`
+We cross-check public dataset usage using papers with code using the code in `src/citation/papers_with_code.py`.
 
 ### Topic Classification
-We showcase our topic classification code in `src/topic/classification.py`
+We showcase our topic classification code in `src/topic/classification.py`.
 
 ## Manual Evaluation Results
 We also include manual evaluation results in 

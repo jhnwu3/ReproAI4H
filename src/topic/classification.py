@@ -137,27 +137,27 @@ Classification:"""
         return df
 
 # Example usage:
-def main():
-    # Initialize config
-    config = ClassifierConfig(
-        device="cuda:1",
-        input_path=Path("data/processed/combined_data.csv"),
-        output_path=Path("data/processed/classified_data.csv")
-    )
+# def main():
+#     # Initialize config
+#     config = ClassifierConfig(
+#         device="cuda:1",
+#         input_path=Path("data/processed/combined_data.csv"),
+#         output_path=Path("data/processed/classified_data.csv")
+#     )
     
-    # Initialize LLM (assuming load_70b_model is imported)
-    device = torch.device(config.device if torch.cuda.is_available() else "cpu")
-    llm_pipeline = load_70b_model(device)
+#     # Initialize LLM (assuming load_70b_model is imported)
+#     device = torch.device(config.device if torch.cuda.is_available() else "cpu")
+#     llm_pipeline = load_70b_model(device)
     
-    # Initialize and run classifier
-    classifier = TopicClassifier(config, llm_pipeline)
-    classified_df = classifier.process_dataset(batch_size=100)
+#     # Initialize and run classifier
+#     classifier = TopicClassifier(config, llm_pipeline)
+#     classified_df = classifier.process_dataset(batch_size=100)
     
-    if classified_df is not None:
-        print("\nClassification Results:")
-        print(classified_df[['title', 'topic']].head())
-        print("\nTopic Distribution:")
-        print(classified_df['topic'].value_counts())
+#     if classified_df is not None:
+#         print("\nClassification Results:")
+#         print(classified_df[['title', 'topic']].head())
+#         print("\nTopic Distribution:")
+#         print(classified_df['topic'].value_counts())
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()
