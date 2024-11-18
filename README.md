@@ -76,8 +76,7 @@ All code for code sharing and public dataset usage is in  `src/conf_proc/measure
 ### Retrieving Citation Data (Semantic Scholar and SerpAPI)
 We note that we primarily use semantic scholar and SerpAPI to retrieve conference paper statistics as PubMed doesn't actively store conference papers. The semantic scholar querying code is in `src/citation/semantic_scholar.py`.
 
-We note that SerpAPI was queried using a free account and is then done through the jupyter notebook `serpapi_conference_papers.ipynb` with their provided API for all the papers missing from the initial semantic scholar check.
-
+We note that SerpAPI was queried using a free account and is then done through the jupyter notebook `serpapi_conference_papers.ipynb` with their provided API for all the papers missing from the initial semantic scholar check. Please make sure you run this notebook after running the above.
 
 ## Scraping PubMed
 One can retrace our steps for scraping PubMed papers by running
@@ -114,3 +113,7 @@ We also include manual evaluation results in
   
 which can be used to compute the final validation results in the Appendix table using
 - `validation.ipynb`
+
+
+## Contact
+Please make a github issue and/or email johnwu3@illinois.edu if something doesn't run properly. I haven't properly debugged this code after cleaning up the mess that I was originally doing as I was originally building the analysis platform.
