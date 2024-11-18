@@ -87,7 +87,7 @@ python3 pmc.py
 ```
 
 ### PMID Query
-All code for querying PubMed's AI4H papers is in
+All code for querying PubMed's AI4H papers is in `src/pubmed/query_pmid.py`
 
 ### Medline Affiliation Extraction 
 We query all medline affiliations using the code defined in `src/pubmed/medline.py`.
@@ -95,10 +95,18 @@ We query all medline affiliations using the code defined in `src/pubmed/medline.
 ### Code Sharing and Public Dataset Usage
 All processing and analysis code is defined in `src/pubmed/pmc_scrape.py`
 
-## Papers with Code API Check
+## Combined Analysis
+Running our combined analysis such as topic classification and checking with papers with code can be done through 
 
-## Topic Classification
+```bash
+python3 combine_classify.py
+```
 
+### Papers with Code API Check
+We cross-check public dataset usage using papers with code using the code in `src/citation/papers_with_code.py`
+
+### Topic Classification
+We showcase our topic classification code in `src/topic/classification.py`
 
 ## Manual Evaluation Results
 We also include manual evaluation results in 
