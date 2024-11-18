@@ -28,13 +28,6 @@ def get_author_affiliation(pmid, api_key):
         return None
     return None  # Return None if no affiliation found
 
-api_key = "your_api_key_here"
-# Load the data
-code = pd.read_csv("processed_data/combined_data.csv")
-
-# Add a new 'affiliation' column, initially filled with empty strings
-code['affiliation'] = ''
-
 # Function to get affiliation with rate limiting
 def get_affiliation_with_rate_limit(row, api_key):
     if row['venue'] == 'pubmed':
@@ -51,10 +44,33 @@ def get_affiliation_with_rate_limit(row, api_key):
     return ''
 
 
-# Apply the function to each row
-code['affiliation'] = code.apply(lambda row: get_affiliation_with_rate_limit(row, api_key), axis=1)
+def query_affiliation(path, api_key="your_api_key_here"):
+    # Load the data
+    code = pd.read_csv(path)
+    # Add a new 'affiliation' column, initially filled with empty strings
+    code['affiliation'] = ''
+    # Apply the function to each row
+    code['affiliation'] = code.apply(lambda row: get_affiliation_with_rate_limit(row, api_key), axis=1)
+    # Save the updated dataframe in place
+    code.to_csv(path, index=False)
+    print(f"Processing complete. Updated data saved to '{path}'")
+    return path
 
-# Save the updated dataframe
-code.to_csv("processed_data/combined_data_medline.csv", index=False)
 
-print("Processing complete. Updated data saved to 'processed_data/combined_data_medline.csv'")
+if __name__ == "__main__":
+    # for pubmed data
+    api_key = "your_api_key_here"
+    # Load the data
+    code = pd.read_csv("processed_data/combined_data.csv")
+
+    # Add a new 'affiliation' column, initially filled with empty strings
+    code['affiliation'] = ''
+
+
+    # Apply the function to each row
+    code['affiliation'] = code.apply(lambda row: get_affiliation_with_rate_limit(row, api_key), axis=1)
+
+    # Save the updated dataframe
+    code.to_csv("processed_data/combined_data_medline.csv", index=False)
+
+    print("Processing complete. Updated data saved to 'processed_data/combined_data_medline.csv'")

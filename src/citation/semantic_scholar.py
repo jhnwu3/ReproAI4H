@@ -1,157 +1,150 @@
+from dataclasses import dataclass
 import os
 import requests
 import time
 import pandas as pd
+from typing import Dict, Optional, List
+import logging
 
-S2_API_KEY = ""  # Add your Semantic Scholar API key here
-RESULT_LIMIT = 10
-BASE_URL = 'https://api.semanticscholar.org/graph/v1/paper/search'
-DELAY = 2.2
+@dataclass
+class SemanticScholarConfig:
+    api_key: str
+    base_url: str = 'https://api.semanticscholar.org/graph/v1/paper/search'
+    result_limit: int = 10
+    delay: float = 2.2
+    max_retries: int = 3
 
-def search_papers(query):
-    params = {
-        'query': query,
-        'limit': RESULT_LIMIT,
-        'fields': 'title,url,abstract,authors,year,citationCount'
-    }
-    headers = {'X-API-KEY': S2_API_KEY}
-    
-    max_retries = 3
-    retry_delay = DELAY
+class SemanticScholarProcessor:
+    def __init__(self, config: Optional[SemanticScholarConfig] = None):
+        self.config = config or SemanticScholarConfig(
+            api_key=os.getenv('S2_API_KEY', '')
+        )
+        logging.basicConfig(level=logging.INFO)
+        self.logger = logging.getLogger(__name__)
 
-    for attempt in range(max_retries):
-        try:
-            response = requests.get(BASE_URL, params=params, headers=headers)
-            response.raise_for_status()
-            results = response.json()
-            time.sleep(DELAY)
+    def search_papers(self, query: str) -> List[Dict]:
+        """Search for papers using the Semantic Scholar API"""
+        params = {
+            'query': query,
+            'limit': self.config.result_limit,
+            'fields': 'title,url,abstract,authors,year,citationCount'
+        }
+        headers = {'X-API-KEY': self.config.api_key}
+        retry_delay = self.config.delay
+
+        for attempt in range(self.config.max_retries):
+            try:
+                response = requests.get(
+                    self.config.base_url, 
+                    params=params, 
+                    headers=headers
+                )
+                response.raise_for_status()
+                results = response.json()
+                time.sleep(self.config.delay)
+                
+                if 'data' in results:
+                    return results['data']
+                return []
+                    
+            except requests.RequestException as e:
+                if response.status_code == 429:
+                    self.logger.warning(f"Rate limit exceeded. Retrying in {retry_delay} seconds...")
+                    time.sleep(retry_delay)
+                    retry_delay *= 2
+                else:
+                    self.logger.error(f"An error occurred: {e}")
+                    return []
+        
+        return []
+
+    def get_citation_count(self, title: str, n_words: int = 3) -> Optional[int]:
+        """Get citation count for a paper by matching title"""
+        papers = self.search_papers(title)
+        
+        if not papers:
+            self.logger.debug(f"No papers found for title: {title}")
+            return None
+
+        title_words = title.lower().split()
+        for paper in papers:
+            paper_title_words = paper['title'].lower().split()
             
-            # Check if 'data' key exists in the results
-            if 'data' in results:
-                print("Found results for query:", query)
-                return results['data']
-            else:
-                print(f"Warning: 'data' key not found in API response for query: {query}")
-                return []
-        except requests.RequestException as e:
-            if response.status_code == 429:
-                print(f"Rate limit exceeded. Retrying in {retry_delay} seconds...")
-                time.sleep(retry_delay)
-                retry_delay *= 2
-            else:
-                print(f"An error occurred: {e}")
-                return []
-    
-    print(f"Max retries reached. Unable to fetch results for query: {query}")
-    return []
-
-
-def get_citation_count(title, n_words=3):
-    papers = search_papers(title)
-    
-    if not papers:
-        print(f"No papers found for title: {title}")
+            for i in range(len(title_words) - n_words + 1):
+                if ' '.join(title_words[i:i+n_words]) in ' '.join(paper_title_words):
+                    return paper['citationCount']
+        
+        self.logger.debug(f"No matching paper found for title: {title}")
         return None
 
-    # Check for title overlap
-    title_words = title.lower().split()
-    for paper in papers:
-        paper_title_words = paper['title'].lower().split()
+    def process_conferences(self, file_paths: Dict[str, Dict[str, str]]) -> Dict[str, pd.DataFrame]:
+        """
+        Process conferences using provided file paths
         
-        # Check if any n consecutive words from the original title appear in the paper title
-        for i in range(len(title_words) - n_words + 1):
-            if ' '.join(title_words[i:i+n_words]) in ' '.join(paper_title_words):
-                return paper['citationCount']
-    
-    print(f"No matching paper found for title: {title}")
-    return None
-
-def process_dataframe(df, title_column='cleaned_title', output_file='chil_semantic_scholar_citations.csv'):
-    df['citation_count'] = df[title_column].apply(get_citation_count)
-    
-    # Save the updated DataFrame
-    df.to_csv(output_file, index=False)
-    print(f"Updated DataFrame saved to {output_file}")
-    
-    return df
-
-
-def get_citation_count(title, n_words=3):
-    papers = search_papers(title)
-    
-    if not papers:
-        print(f"No papers found for title: {title}")
-        return None
-
-    # Check for title overlap
-    title_words = title.lower().split()
-    for paper in papers:
-        paper_title_words = paper['title'].lower().split()
+        Args:
+            file_paths: Dictionary of conference names to input/output paths
+                       {'conference': {'input': 'path/to/input.csv', 
+                                     'output': 'path/to/output.csv'}}
+        """
+        results = {}
         
-        # Check if any n consecutive words from the original title appear in the paper title
-        for i in range(len(title_words) - n_words + 1):
-            if ' '.join(title_words[i:i+n_words]) in ' '.join(paper_title_words):
-                return paper['citationCount']
-    
-    print(f"No matching paper found for title: {title}")
-    return None
+        for conference, paths in file_paths.items():
+            try:
+                df = pd.read_csv(paths['input'])
+                self.logger.info(f"Processing {len(df)} papers from {conference}")
 
-def process_dataframe(df, title_column='cleaned_title', output_file='chil_semantic_scholar_citations.csv'):
-    df['citation_count'] = df[title_column].apply(get_citation_count)
-    
-    # Save the updated DataFrame
-    df.to_csv(output_file, index=False)
-    print(f"Updated DataFrame saved to {output_file}")
-    
-    return df
-
-
-def process_conference_dataframes(dataframes_dict, output_dir="processed_data/"):
-    """
-    Process multiple dataframes for different conferences and save results.
-    
-    :param dataframes_dict: A dictionary where keys are conference names and values are dataframes
-    :param output_dir: Directory to save the processed files
-    :return: A dictionary of processed dataframes
-    """
-    processed_dataframes = {}
-    
-    for conference_name, df in dataframes_dict.items():
-        print(f"Processing {conference_name} data...")
+                # Add citation counts
+                df['citation_count'] = df['cleaned_title'].apply(self.get_citation_count)
+                
+                # Save results
+                df.to_csv(paths['output'], index=False)
+                self.logger.info(f"Saved citation data to {paths['output']}")
+                
+                # Log summary statistics
+                self.logger.info(f"\n{conference.upper()} Citation Summary:")
+                self.logger.info(df['citation_count'].describe())
+                self.logger.info(f"Papers without citations: {df['citation_count'].isna().sum()}")
+                
+                results[conference] = df
+                
+                # Add delay between conferences
+                time.sleep(self.config.delay)
+                
+            except FileNotFoundError:
+                self.logger.error(f"Could not find data file: {paths['input']}")
+                continue
         
-        # Add citation counts
-        df['citation_count'] = df['cleaned_title'].apply(get_citation_count)
-        
-        # Save the updated DataFrame
-        output_file = os.path.join(output_dir, f"{conference_name}_semantic_scholar_citations.csv")
-        df.to_csv(output_file, index=False)
-        print(f"Updated {conference_name} DataFrame saved to {output_file}")
-        
-        processed_dataframes[conference_name] = df
-        
-        # Add a delay to respect rate limits
-        time.sleep(1)
+        return results
+
+# Example usage:
+def main():
+    # Define file paths
+    file_paths = {
+        'ml4h': {
+            'input': 'data/cleaned/ml4h/ml4h_cleaned.csv',
+            'output': 'data/processed/ml4h/ml4h_citations.csv'
+        },
+        'chil': {
+            'input': 'data/cleaned/chil/chil_cleaned.csv',
+            'output': 'data/processed/chil/chil_citations.csv'
+        },
+        'mlhc': {
+            'input': 'data/cleaned/mlhc/mlhc_cleaned.csv',
+            'output': 'data/processed/mlhc/mlhc_citations.csv'
+        }
+    }
     
-    return processed_dataframes
+    # Initialize processor
+    processor = SemanticScholarProcessor(
+        SemanticScholarConfig(api_key="YOUR_API_KEY")
+    )
+    
+    # Process all conferences
+    conference_dfs = processor.process_conferences(file_paths)
+    
+    # Use the returned dataframes for next steps
+    for conf, df in conference_dfs.items():
+        print(f"\n{conf} shape:", df.shape)
 
-
-all_chil_data = pd.read_csv("processed_data/cleaned_chil_extracted_info.csv")
-all_ml4h_data = pd.read_csv("processed_data/cleaned_ml4h_extracted_info.csv")
-all_mlhc_data = pd.read_csv("processed_data/cleaned_mlhc_extracted_info.csv")
-
-conference_data = {
-    "chil": all_chil_data,
-    "ml4h": all_ml4h_data,
-    "mlhc": all_mlhc_data
-}
-processed_dataframes = process_conference_dataframes(conference_data)
-
-for conference, df in processed_dataframes.items():
-    print(f"\n{conference.upper()} Citation Summary:")
-    print(df['citation_count'].describe())
-    print(f"Number of papers without citations: {df['citation_count'].isna().sum()}")
-
-# Usage
-# chil_data = pd.read_csv('processed_data/cleaned_chil_extracted_info.csv')
-# updated_df = process_dataframe(chil_data)
-# print(updated_df[['cleaned_title', 'citation_count']])
+if __name__ == "__main__":
+    main()

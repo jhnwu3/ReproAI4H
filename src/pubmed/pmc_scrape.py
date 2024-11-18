@@ -7,7 +7,7 @@ import requests
 import time
 import metapub as mp
 import os
-from typing import Dict, List, Any, Tuple, Optional
+from typing import Dict, List, Any, Tuple, Optional, Union
 from pmidcite.icite.downloader import get_downloader
 from src.pubmed.pmc_scrape_func import (
     parse_bioc_xml, 
@@ -211,16 +211,20 @@ class PubMedProcessor:
 
     def save_results(self, all_stats: Dict, all_paper_data: Dict, bioc_dicts: Dict) -> None:
         """Save analysis results to files."""
+        csv_file_path = f"data/processed/{self.venue}_stats.csv"
         # Save stats to CSV
         self.write_stats_to_csv(all_stats, 
-                              f"processed_data/{self.venue}_stats.csv")
+                              csv_file_path)
         
+
         # Save paper data with full information
         self.save_paper_data(all_paper_data, 
-                           f"processed_data/{self.venue}_paper_data.json",
-                           f"processed_data/{self.venue}_paper_data.pkl",
+                           f"data/processed/{self.venue}_paper_data.json",
+                           f"data/processed/{self.venue}_paper_data.pkl",
                            bioc_dicts)
 
+        return csv_file_path
+    
     def write_stats_to_csv(self, all_stats: Dict, filename: str) -> None:
         """Write analysis statistics to CSV file."""
         with open(filename, 'w', newline='') as csvfile:
@@ -282,7 +286,7 @@ class PubMedProcessor:
         with open(filename, 'rb') as f:
             return pickle.load(f)
 
-    def process_venue(self, n: int = 10000) -> None:
+    def process_venue(self, n: int = 10000, filename = "") -> None:
         """
         Process the entire venue workflow.
         
@@ -293,18 +297,18 @@ class PubMedProcessor:
         print(f"Starting BioC scraping for venue: {self.venue.upper()}")
 
         # Step 1: Read PMIDs and fetch BioC XML
-        filename = f"{self.venue}_ai_ml_pmids.csv"
+        # filename = f"{self.venue}_ai_ml_pmids.csv"
         read_pmids = self.read_pmids_from_csv(filename)
         bioc_xmls = self.pmid2biocxml(read_pmids[:n])
-        self.save_to_pickle(bioc_xmls, f"{self.venue}_content/bioc_xmls.pkl")
+        self.save_to_pickle(bioc_xmls, f"data/raw/{self.venue}/bioc_xmls.pkl")
 
         # Step 2: Process BioC XML
-        bioc_xmls = self.load_from_pickle(f"{self.venue}_content/bioc_xmls.pkl")
+        bioc_xmls = self.load_from_pickle(f"data/raw/{self.venue}/bioc_xmls.pkl")
         my_processed_dict = self.process_bioc_xml(bioc_xmls, read_pmids[:n])
-        self.save_to_pickle(my_processed_dict, f"{self.venue}_content/paper_content_flattened.pkl")
+        self.save_to_pickle(my_processed_dict, f"data/raw/{self.venue}/paper_content_flattened.pkl")
 
         # Step 3: Analyze processed data
-        bioc_dicts = self.load_from_pickle(f"{self.venue}_content/paper_content_flattened.pkl")
+        bioc_dicts = self.load_from_pickle(f"data/raw/{self.venue}/paper_content_flattened.pkl")
         print(f"Processed {len(bioc_dicts)} papers")
         
         years = ["2018", "2019", "2020", "2021", "2022", "2023", "2024"]
@@ -333,7 +337,8 @@ class PubMedProcessor:
         all_stats, all_paper_data = self.analyze_papers_across_years(bioc_dicts, years)
         
         # Save results
-        self.save_results(all_stats, all_paper_data, bioc_dicts)
+        processed_filepath = self.save_results(all_stats, all_paper_data, bioc_dicts)
         
         end_time = time.time()
         print(f"Total execution time: {end_time - start_time:.2f} seconds")
+        return processed_filepath

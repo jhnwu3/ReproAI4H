@@ -52,19 +52,27 @@ We note that getting access to each service's API's may not be trivial. For gett
 
 
 ## Scraping Conference Papers
+One can retrace our steps for scraping conference papers by running
 
+```bash
+python3 conf.py 
+```
+
+However, please note that you will have to manually download 2 years of the CHIL papers as they were unscrapeable due to them being stored on ACM's website. 
 
 ### Retrieving Conference Papers
-
+We share our webscraping code in `src/conf_proc/scrape_conf.py`
 
 ### Cleaning PDFs
+We share our LLM title and author extraction code in `src/conf_proc/clean_conf.py`.
+
 
 ### Measuring Code Sharing and Public Dataset Usage
-
+All code for code sharing and public dataset usage is in  `src/conf_proc/measure_conf.py`.
 
 
 ### Retrieving Citation Data (Semantic Scholar and SerpAPI)
-
+We note that we primarily use semantic scholar and SerpAPI to retrieve conference paper statistics as PubMed doesn't actively store conference papers.
 
 
 ## Scraping PubMed

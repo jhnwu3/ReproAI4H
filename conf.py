@@ -3,7 +3,7 @@ from src.conf_proc.scrape_conf import ConferenceDownloader
 from src.conf_proc.clean_conf import ConferencePaperCleaner
 from src.conf_proc.measure_conf import PDFContentProcessor
 from src.conf_proc.pathing import ConferencePathManager
-
+from src.citation.semantic_scholar import SemanticScholarProcessor, SemanticScholarConfig
 
 def start_debug():
     print("Starting debug mode...")
@@ -50,6 +50,34 @@ def main():
             downloader.process_conference(conference)
             processor.process_conference(conference)
             cleaner.clean_conference_papers(conference)
+
+        # Define file paths
+        file_paths = {
+            'ml4h': {
+                'input': 'data/cleaned/ml4h/ml4h_cleaned.csv',
+                'output': 'data/processed/ml4h/ml4h_citations.csv'
+            },
+            'chil': {
+                'input': 'data/cleaned/chil/chil_cleaned.csv',
+                'output': 'data/processed/chil/chil_citations.csv'
+            },
+            'mlhc': {
+                'input': 'data/cleaned/mlhc/mlhc_cleaned.csv',
+                'output': 'data/processed/mlhc/mlhc_citations.csv'
+            }
+        }
+        
+        # Initialize processor
+        processor = SemanticScholarProcessor(
+            SemanticScholarConfig(api_key="YOUR_API_KEY")
+        )
+        
+        # Process all conferences
+        conference_dfs = processor.process_conferences(file_paths)
+        
+        # Use the returned dataframes for next steps
+        for conf, df in conference_dfs.items():
+            print(f"\n{conf} shape:", df.shape)
 
 if __name__ == "__main__":
     main()
